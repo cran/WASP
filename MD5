@@ -1,5 +1,6 @@
-5aea32af80ca956797a942d04c21357e *DESCRIPTION
+f86ea4cc7541e2287b0aeca90dafeb27 *DESCRIPTION
 ccab84349fe12c7a6de4f5cc292ba294 *NAMESPACE
+3a22efa7a306c795f52f895d89e784ad *NEWS.md
 c6a4af0cc578a7ba41184f9867f519fb *R/WASP-package.R
 835d4e449eb54e7ffb85eb1bd8d3df55 *R/atrous_vt.R
 95e642257ec7d25ea9517a8e164e225b *R/data_gen_AR.R
@@ -11,12 +12,12 @@ f16faae2926aacda98fc9bd6ede5e087 *R/globals.R
 a8fe9d07fce5892a772afd806634da02 *R/import_packages.R
 cb9401e3a645ca8cc0275fc83acd1547 *R/knn.R
 d36a9940ec38ccb41fb2386a84a728af *R/modwt_vt.R
-179ae3ceadb466c472cffb21afd5790d *R/plot_functions.R
+d97ed2291c9df03e1ea5c6b8b058e642 *R/plot_functions.R
 80720ce93ecf60f976881c0986e66e56 *R/sampledata.R
 04771933a0ea78c8e4ce8123bcb12124 *R/scal2freq.R
 bed9043f9f8d2ca0440ae10d527aa9be *R/stepwise_VT.R
 0a6891640c53f96accba4c4a41037997 *R/wavelet_variance.R
-62bd163ca388d29db56d958fb206fd9a *README.md
+d7266045d3f0eb219a16953ef7cb5b29 *README.md
 b057cb47bc2c048967ca5d6c6ce32836 *build/vignette.rds
 43594d260e1e9e26082efe851e9ae8bc *data/Ind_AWAP.2.5.rda
 14077089e4cc3a8fc2c52ee64c770650 *data/SPI.12.rda
@@ -32,9 +33,9 @@ e36ed7990a6ed33e35f7a274d7493930 *data/lat_lon.2.5.rda
 d296f040167eeefc13005bfc5337018b *data/rain.mon.rda
 2abbf429def104ee9d2bc9e03ba50763 *demo/00Index
 5d4db2f67b87f315c03a4f300c2a0200 *demo/demo-vt.R
-b19c6be29e7a162304668d06efff5021 *inst/doc/WASP.R
-f963edfe676d92b1ddc01684850c7331 *inst/doc/WASP.Rmd
-a1a8778da1a6895ea2cb71b2b3e30ff4 *inst/doc/WASP.html
+24cdcafbfcb98d691c6ea9f4b376e3c9 *inst/doc/WASP.R
+d1afc29101851fd09e5a0ff2cf0c2d09 *inst/doc/WASP.Rmd
+7dc8e8d58e89a0f915fb891ce3afe0fb *inst/doc/WASP.html
 2eca4a86a8b6e3101d0f43f1bf50c8ef *inst/fig/Figure1.jpg
 daa3c8823be3f99c21204ecb0be81c72 *inst/r/SPI_calc.R
 f204eb32d107998e56ffb6edff02b135 *inst/r/radar_chart.R
@@ -67,7 +68,7 @@ f409596378bec92955749c67f943d736 *man/knn.Rd
 4a8f10b95cc465d88b49fe2b8060c5b2 *man/lat_lon.2.5.Rd
 06aaf605870174f66f9a558de68d51dd *man/modwt.vt.Rd
 a7d414087a831eeecef0cf8b1f486d0e *man/modwt.vt.val.Rd
-77adc80d000bd609a52ec15d46591916 *man/mra.plot.Rd
+81493d2a6fc6ae5f7e9deaa6e3b3cf96 *man/mra.plot.Rd
 fdb46346c51011fbc3c0e584ef8c8efd *man/non.bdy.Rd
 e5662971620eb1566d15fc9ce9f112fb *man/obs.mon.Rd
 f0e5c1674fe251884aa87c806f0c4890 *man/padding.Rd
@@ -78,4 +79,4 @@ dd97dfdef43f52bb8bbbd7aa39ed34e2 *man/scal2freqR.Rd
 72352078a361da059c6ebb724cbb8470 *man/stepwise.VT.Rd
 ce12df6dda0491bb21faa90569776669 *man/stepwise.VT.val.Rd
 7b284658abec63d671312907ba444087 *man/wave.var.Rd
-f963edfe676d92b1ddc01684850c7331 *vignettes/WASP.Rmd
+d1afc29101851fd09e5a0ff2cf0c2d09 *vignettes/WASP.Rmd
