@@ -1,12 +1,14 @@
 ---
-title: "WASP：An R package for Wavelet System Prediction"
+title: "WASP: An R package for Wavelet System Prediction"
+author: 'Ze Jiang, Md. Mamunur Rashid, Ashish Sharma, and Fiona Johnson'
+date: "`r format(Sys.time(), '%H:%M:%S %d %B, %Y')`"
 output: 
 #  rmarkdown::html_vignette: 
   bookdown::html_vignette2: 
     toc: true
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{WASP}
+  %\VignetteIndexEntry{Wavelet System Prediction}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
