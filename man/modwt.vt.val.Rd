@@ -4,7 +4,7 @@
 \alias{modwt.vt.val}
 \title{Variance Transformation Operation for Validation}
 \usage{
-modwt.vt.val(data, J, dwt, detrend = FALSE)
+modwt.vt.val(data, J, dwt, detrend = FALSE, backward = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{data}{A list of response x and dependent variables dp.}
@@ -13,7 +13,11 @@ modwt.vt.val(data, J, dwt, detrend = FALSE)
 
 \item{dwt}{A class of "modwt" data. Output from modwt.vt().}
 
-\item{detrend}{Detrend the input time series or just center, default (F)}
+\item{detrend}{Detrend the input time series or just center, default (F).}
+
+\item{backward}{Detrend the input time series or just center, default (F).}
+
+\item{verbose}{A logical indicating if some “progress report” should be given.}
 }
 \value{
 A list of 8 elements: wf, J, boundary, x (data), dp (data), dp.n (variance transformed dp), and S (covariance matrix).
@@ -26,8 +30,8 @@ data(rain.mon)
 data(obs.mon)
 
 ## response SPI - calibration
-# SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
-SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
+SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
+#SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
 
 ## create paired response and predictors dataset for each station
 data.list <- list()
@@ -43,8 +47,8 @@ dwt.list <- lapply(data.list, function(x) {
 })
 
 ## response SPI - validation
-# SPI.val <- SPI.calc(window(rain.mon, start=c(1979,1), end=c(2009,12)),sc=12)
-SPI.val <- SPEI::spi(window(rain.mon, start = c(1979, 1), end = c(2009, 12)), scale = 12)$fitted
+SPI.val <- SPI.calc(window(rain.mon, start=c(1979,1), end=c(2009,12)),sc=12)
+#SPI.val <- SPEI::spi(window(rain.mon, start = c(1979, 1), end = c(2009, 12)), scale = 12)$fitted
 
 ## create paired response and predictors dataset for each station
 data.list <- list()
@@ -73,5 +77,5 @@ for (i in seq_along(dwt.list.val)) {
 }
 }
 \references{
-Z Jiang, A Sharma, and F Johnson. WRR
+Jiang, Z., Sharma, A., & Johnson, F. (2020). Refining Predictor Spectral Representation Using Wavelet Theory for Improved Natural System Modeling. Water Resources Research, 56(3), e2019WR026962. doi:10.1029/2019wr026962
 }

@@ -32,7 +32,8 @@
 #' )
 #' wf <- "d4"
 #' station.id <- 5 # station to investigate
-#' SPI.12 <- SPEI::spi(rain.mon, scale = 12)$fitted
+#' #SPI.12 <- SPEI::spi(rain.mon, scale = 12)$fitted
+#' SPI.12 <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(2009,12)),sc=12)
 #' lab.names <- colnames(obs.mon)
 #' # plot.ts(SPI.12[,1:10])
 #'
@@ -184,7 +185,8 @@ stepwise.VT <- function(data, alpha = 0.1, nvarmax = 4, mode = c("MRA", "MODWT",
 #' )
 #' wf <- "d4"
 #' station.id <- 5 # station to investigate
-#' SPI.12 <- SPEI::spi(rain.mon, scale = 12)$fitted
+#' #SPI.12 <- SPEI::spi(rain.mon, scale = 12)$fitted
+#' SPI.12 <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(2009,12)),sc=12)
 #' lab.names <- colnames(obs.mon)
 #' # plot.ts(SPI.12[,1:10])
 #'
@@ -224,7 +226,7 @@ stepwise.VT.val <- function(data, J, dwt, mode = c("MRA", "MODWT", "AT"), detren
     pad <- dwt$pad
   }
 
-  if (wf != "haar") v <- as.integer(readr::parse_number(wf) / 2) else v <- 1
+  if (wf != "haar") v <- as.integer(parse_number(wf) / 2) else v <- 1
   # Maximum decomposition level J
   n <- length(x)
   # if(wf=="haar") J <- ceiling(log(n/(2*v-1))/log(2))-1 else J <- ceiling(log(n/(2*v-1))/log(2))#(Kaiser, 1994)
@@ -361,32 +363,32 @@ pmi.calc <- function(X, Y) {
   return(sum(calc) / N)
 }
 #-------------------------------------------------------------------------------
-# Calculate PIC
-#
-# @param X       A vector of response.
-# @param Y       A matrix of new predictors.
-# @param Z       A matrix of pre-existing predictors that could be NULL if no prior predictors exist.
-# @param mode    A mode of variance transfomration, i.e., MRA, MODWT, or AT
-# @param J       The maximum decomposition level
-# @param wf      Wavelet family
-# @param method  Either "dwt" or "modwt" of MRA.
-# @param pad      The method used for extend data to dyadic size. Use "per", "zero", or "sym".
-# @param boundary Character string specifying the boundary condition. If boundary=="periodic" the default, then the vector you decompose is assumed to be periodic on its defined interval, if boundary=="reflection", the vector beyond its boundaries is assumed to be a symmetric reflection of itself.
-# @param cov.opt Options of Covariance matrix sign. Use "pos", "neg", or "auto".
-# @param flag    Biased or Unbiased variance transformation.
-# @param detrend Detrend the input time series or just center, default (F).
-#
-# @return A list of 2 elements: the partial mutual information (pmi), and partial informational correlation (pic).
-# @export
-#
-# @references Sharma, A., Mehrotra, R., 2014. An information theoretic alternative to model a natural system using observational information alone. Water Resources Research, 50(1): 650-660.
-# @references Galelli S., Humphrey G.B., Maier H.R., Castelletti A., Dandy G.C. and Gibbs M.S. (2014) An evaluation framework for input variable selection algorithms for environmental data-driven models, Environmental Modelling and Software, 62, 33-51, DOI: 10.1016/j.envsoft.2014.08.015.
+#' Calculate PIC
+#'
+#' @param X       A vector of response.
+#' @param Y       A matrix of new predictors.
+#' @param Z       A matrix of pre-existing predictors that could be NULL if no prior predictors exist.
+#' @param mode    A mode of variance transfomration, i.e., MRA, MODWT, or AT
+#' @param J       The maximum decomposition level
+#' @param wf      Wavelet family
+#' @param method  Either "dwt" or "modwt" of MRA.
+#' @param pad      The method used for extend data to dyadic size. Use "per", "zero", or "sym".
+#' @param boundary Character string specifying the boundary condition. If boundary=="periodic" the default, then the vector you decompose is assumed to be periodic on its defined interval, if boundary=="reflection", the vector beyond its boundaries is assumed to be a symmetric reflection of itself.
+#' @param cov.opt Options of Covariance matrix sign. Use "pos", "neg", or "auto".
+#' @param flag    Biased or Unbiased variance transformation.
+#' @param detrend Detrend the input time series or just center, default (F).
+#'
+#' @return A list of 2 elements: the partial mutual information (pmi), and partial informational correlation (pic).
+#' @export
+#'
+#' @references Sharma, A., Mehrotra, R., 2014. An information theoretic alternative to model a natural system using observational information alone. Water Resources Research, 50(1): 650-660.
+#' @references Galelli S., Humphrey G.B., Maier H.R., Castelletti A., Dandy G.C. and Gibbs M.S. (2014) An evaluation framework for input variable selection algorithms for environmental data-driven models, Environmental Modelling and Software, 62, 33-51, DOI: 10.1016/j.envsoft.2014.08.015.
 
 pic.calc <- function(X, Y, Z, mode, wf, J, method = "dwt", pad = "zero",
                      boundary = "periodic", cov.opt = "auto", flag = "biased", detrend = F) {
   Y <- as.matrix(Y)
 
-  if (wf != "haar") v <- as.integer(readr::parse_number(wf) / 2) else v <- 1
+  if (wf != "haar") v <- as.integer(parse_number(wf) / 2) else v <- 1
   # Maximum decomposition level J
   n <- length(X)
   # if(wf=="haar") J <- ceiling(log(n/(2*v-1))/log(2))-1 else J <- ceiling(log(n/(2*v-1))/log(2))#(Kaiser, 1994)
@@ -446,4 +448,5 @@ pw.calc <- function(x, z, cpyPIC) {
     for (i in seq_len(ncol(Z))) wt[i] <- calc.scaleSTDratio(x, Z[, i], Z[, -i]) * cpyPIC[i]
   }
   return(list(pw = wt))
+  #return(list(pw = wt / sum(wt)))
 }

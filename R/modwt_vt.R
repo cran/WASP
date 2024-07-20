@@ -6,15 +6,16 @@
 #' @param boundary  Character string specifying the boundary condition. If boundary=="periodic" the default, then the vector you decompose is assumed to be periodic on its defined interval, if boundary=="reflection", the vector beyond its boundaries is assumed to be a symmetric reflection of itself.
 #' @param cov.opt   Options of Covariance matrix sign. Use "pos", "neg", or "auto".
 #' @param flag      Biased or Unbiased variance transformation, c("biased","unbiased").
-#' @param detrend   Detrend the input time series or just center, default (F)
+#' @param detrend   Detrend the input time series or just center, default (F).
+#' @param backward  Detrend the input time series or just center, default (F).
+#' @param verbose	  A logical indicating if some “progress report” should be given.
 #'
 #' @return A list of 8 elements: wf, J, boundary, x (data), dp (data), dp.n (variance transformed dp), and S (covariance matrix).
 #' @import waveslim
 #' @export
 #'
 #' @references Jiang, Z., Sharma, A., & Johnson, F. (2020). Refining Predictor Spectral Representation Using Wavelet Theory for Improved Natural System Modeling. Water Resources Research, 56(3), e2019WR026962.
-#'
-#' Jiang, Z., Rashid, M. M., Johnson, F., & Sharma, A. (2020). A wavelet-based tool to modulate variance in predictors: an application to predicting drought anomalies. Environmental Modelling & Software, 135, 104907.
+#' @references Jiang, Z., Rashid, M. M., Johnson, F., & Sharma, A. (2020). A wavelet-based tool to modulate variance in predictors: an application to predicting drought anomalies. Environmental Modelling & Software, 135, 104907.
 #'
 #' @examples
 #' ### real-world example
@@ -61,18 +62,25 @@
 #' points(x = bar[2, ], y = sapply(x.modwt, var) / sum(sapply(x.modwt, var)))
 #'
 modwt.vt <- function(data, wf, J, boundary, cov.opt = "auto",
-                     flag = "biased", detrend = FALSE) {
+                     flag = "biased", detrend = FALSE, backward=FALSE, verbose=TRUE) {
   # initialization
   x <- data$x
   dp <- as.matrix(data$dp)
   mu.dp <- apply(dp, 2, mean)
-
-  # variance transform
+  
+  # reverse data to normal timeline
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+  }
+  
+  # output 
   ndim <- ncol(dp)
   n <- nrow(dp)
   S <- matrix(nrow = J + 1, ncol = ndim)
   dp.n <- matrix(nrow = n, ncol = ndim)
   modwt.dp <- vector("list", ndim)
+  Wn.list <- vector('list', NCOL(dp))
 
   for (i in 1:ndim) {
     # center or detrend
@@ -88,11 +96,14 @@ modwt.vt <- function(data, wf, J, boundary, cov.opt = "auto",
     B <- matrix(unlist(modwt.dp[[i]]), ncol = J + 1, byrow = FALSE)
 
     Bn <- scale(B)[1:n, ]
+    Wn.list[[i]] <- Bn
     V <- as.numeric(apply(B, 2, sd))
 
-    dif <- sum(abs(imodwt(modwt.dp[[i]]) - dp.c))
-    if (dif > 10^-10) print(paste0("Difference between reconstructed and
-                                   original series: ", dif))
+	if(verbose){
+		# dif <- sum(abs(imodwt(modwt.dp[[i]]) - dp.c)) # this is equivalent to MODWT-MRA
+		dif <- sum(abs(Bn %*% V - dp.c))
+		if (dif > 10^-10) print(paste0("Difference between reconstructed and original series: ", dif))
+	}
 
     # variance transformation
     cov <- cov(x, Bn[seq_along(x), ])
@@ -139,6 +150,13 @@ modwt.vt <- function(data, wf, J, boundary, cov.opt = "auto",
     #                  and original series by percentage: ", dif.var*100))
   }
 
+  # reverse data to normal timeline
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+    dp.n <- apply(dp.n, 2, rev)
+  }
+  
   dwt <- list(
     wavelet = wf,
     J = J,
@@ -146,7 +164,8 @@ modwt.vt <- function(data, wf, J, boundary, cov.opt = "auto",
     x = x,
     dp = dp,
     dp.n = dp.n,
-    S = S
+    S = S,
+    Wn = Wn.list
   )
   class(dwt) <- "modwt"
 
@@ -159,19 +178,22 @@ modwt.vt <- function(data, wf, J, boundary, cov.opt = "auto",
 #' @param data		  A list of response x and dependent variables dp.
 #' @param J      	  Specifies the depth of the decomposition. This must be a number less than or equal to log(length(x),2).
 #' @param dwt       A class of "modwt" data. Output from modwt.vt().
-#' @param detrend   Detrend the input time series or just center, default (F)
+#' @param detrend   Detrend the input time series or just center, default (F).
+#' @param backward  Detrend the input time series or just center, default (F).
+#' @param verbose	  A logical indicating if some “progress report” should be given.
 #'
-#' @return          A list of 8 elements: wf, J, boundary, x (data), dp (data), dp.n (variance transformed dp), and S (covariance matrix).
+#' @return A list of 8 elements: wf, J, boundary, x (data), dp (data), dp.n (variance transformed dp), and S (covariance matrix).
 #' @export
-#' @references Z Jiang, A Sharma, and F Johnson. WRR
+#'
+#' @references Jiang, Z., Sharma, A., & Johnson, F. (2020). Refining Predictor Spectral Representation Using Wavelet Theory for Improved Natural System Modeling. Water Resources Research, 56(3), e2019WR026962. doi:10.1029/2019wr026962
 #'
 #' @examples
 #' data(rain.mon)
 #' data(obs.mon)
 #'
 #' ## response SPI - calibration
-#' # SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
-#' SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
+#' SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
+#' #SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
 #'
 #' ## create paired response and predictors dataset for each station
 #' data.list <- list()
@@ -187,8 +209,8 @@ modwt.vt <- function(data, wf, J, boundary, cov.opt = "auto",
 #' })
 #'
 #' ## response SPI - validation
-#' # SPI.val <- SPI.calc(window(rain.mon, start=c(1979,1), end=c(2009,12)),sc=12)
-#' SPI.val <- SPEI::spi(window(rain.mon, start = c(1979, 1), end = c(2009, 12)), scale = 12)$fitted
+#' SPI.val <- SPI.calc(window(rain.mon, start=c(1979,1), end=c(2009,12)),sc=12)
+#' #SPI.val <- SPEI::spi(window(rain.mon, start = c(1979, 1), end = c(2009, 12)), scale = 12)$fitted
 #'
 #' ## create paired response and predictors dataset for each station
 #' data.list <- list()
@@ -215,7 +237,7 @@ modwt.vt <- function(data, wf, J, boundary, cov.opt = "auto",
 #'   plot.ts(cbind(x, dp))
 #'   plot.ts(cbind(x, dp.n))
 #' }
-modwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
+modwt.vt.val <- function(data, J, dwt, detrend = FALSE, backward=FALSE, verbose=TRUE) {
 
   # initialization
   x <- data$x
@@ -223,8 +245,14 @@ modwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
   wf <- dwt$wavelet
   boundary <- dwt$boundary
   mu.dp <- apply(dp, 2, mean)
-
-  # variance transform
+  
+  # reverse data
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+  }
+  
+  # output
   ndim <- ncol(dp)
   n <- nrow(dp)
   dp.n <- matrix(nrow = n, ncol = ndim)
@@ -245,9 +273,11 @@ modwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
     Bn <- scale(B)
     V <- as.numeric(apply(B, 2, sd))
 
-    dif <- sum(abs(imodwt(modwt.dp[[i]]) - dp.c))
-    if (dif > 10^-10) print(paste0("Difference between reconstructed and
-                                   original series: ", dif))
+	if(verbose){
+		# dif <- sum(abs(imodwt(modwt.dp[[i]]) - dp.c)) # this is equivalent to MODWT-MRA
+		dif <- sum(abs(Bn %*% V - dp.c))
+		if (dif > 10^-10) print(paste0("Difference between reconstructed and original series: ", dif))
+	}
 
     # in case different J
     cov <- rep(0, J + 1)
@@ -271,6 +301,13 @@ modwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
     #                     and original series by percentage: ", dif.var * 100))
   }
 
+  # reverse data to normal timeline
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+    dp.n <- apply(dp.n, 2, rev)
+  }
+  
   dwt <- list(
     wavelet = wf,
     J = J,

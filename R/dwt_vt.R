@@ -8,7 +8,9 @@
 #' @param boundary  Character string specifying the boundary condition. If boundary=="periodic" the default, then the vector you decompose is assumed to be periodic on its defined interval, if boundary=="reflection", the vector beyond its boundaries is assumed to be a symmetric reflection of itself.
 #' @param cov.opt   Options of Covariance matrix sign. Use "pos", "neg", or "auto".
 #' @param flag      Biased or Unbiased variance transformation, c("biased","unbiased").
-#' @param detrend   Detrend the input time series or just center, default (F)
+#' @param detrend   Detrend the input time series or just center, default (F).
+#' @param backward  Detrend the input time series or just center, default (F).
+#' @param verbose	  A logical indicating if some “progress report” should be given.
 #'
 #' @return A list of 8 elements: wf, method, boundary, pad, x (data), dp (data), dp.n (variance trasnformed dp), and S (covariance matrix).
 #' @import waveslim
@@ -21,8 +23,8 @@
 #' data(obs.mon)
 #'
 #' ## response SPI - calibration
-#' # SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
-#' SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
+#' SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
+#' #SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
 #'
 #' ## create paired response and predictors dataset for each station
 #' data.list <- list()
@@ -49,18 +51,25 @@
 #'   plot.ts(cbind(x, dp.n))
 #' }
 dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
-                   flag = "biased", detrend = FALSE) {
+                   flag = "biased", detrend = FALSE, backward=FALSE, verbose=TRUE) {
   # initialization
   x <- data$x
   dp <- as.matrix(data$dp)
   mu.dp <- apply(dp, 2, mean)
 
-  # variance transfrom
+  # reverse data
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+  }
+
+  # output
   ndim <- ncol(dp)
   n <- nrow(dp)
   S <- matrix(nrow = J + 1, ncol = ndim)
   dp.n <- matrix(nrow = n, ncol = ndim)
   idwt.dp <- vector("list", ndim)
+  Wn.list <- vector('list', NCOL(dp))
 
   for (i in 1:ndim) {
     # center or detrend
@@ -77,11 +86,13 @@ dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
     B <- matrix(unlist(lapply(idwt.dp[[i]], function(z) z[1:n])), ncol = J + 1, byrow = FALSE)
 
     Bn <- scale(B)
+    Wn.list[[i]] <- Bn
     V <- as.numeric(apply(B, 2, sd))
 
-    dif <- sum(abs(Bn %*% V - dp.c))
-    if (dif > 10^-10) print(paste0("Difference between reconstructed and
-                                   original series: ", dif))
+	if(verbose){
+		dif <- sum(abs(Bn %*% V - dp.c))
+		if (dif > 10^-10) print(paste0("Difference between reconstructed and original series: ", dif))
+	}
 
     # variance transformation
     cov <- cov(x, Bn[seq_len(length(x)), ])
@@ -129,9 +140,18 @@ dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
       }
     }
 
-    dif.var <- abs(var(dp[, i]) - var(dp.n[, i])) / var(dp[, i])
-    if (dif.var > 0.15) print(paste0("Variance difference between transformed
-                        and original series by percentage: ", dif.var * 100))
+    if(verbose){
+		dif.var <- abs(var(dp[, i]) - var(dp.n[, i])) / var(dp[, i])
+		if (dif.var > 0.15) print(paste0("Variance difference between transformed ",
+							"and original series by percentage: ", dif.var * 100))
+	}
+  }
+
+  # reverse data to normal timeline
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+    dp.n <- apply(dp.n, 2, rev)
   }
 
   dwt <- list(
@@ -142,9 +162,10 @@ dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
     x = x,
     dp = dp,
     dp.n = dp.n,
-    S = S
+    S = S,
+    Wn=Wn.list
   )
-  class(dwt) <- "dwt"
+  class(dwt) <- paste0(method,"-mra")
 
   return(dwt)
 }
@@ -154,10 +175,13 @@ dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
 #' @param data		  A list of response x and dependent variables dp.
 #' @param J      	  Specifies the depth of the decomposition. This must be a number less than or equal to log(length(x),2).
 #' @param dwt       A class of "dwt" data. Output from dwt.vt().
-#' @param detrend   Detrend the input time series or just center, default (F)
+#' @param detrend   Detrend the input time series or just center, default (F).
+#' @param backward  Detrend the input time series or just center, default (F).
+#' @param verbose	  A logical indicating if some “progress report” should be given.
 #'
-#' @return          A list of 8 elements: wf, method, boundary, pad, x (data), dp (data), dp.n (variance trasnformed dp), and S (covariance matrix).
+#' @return A list of 8 elements: wf, method, boundary, pad, x (data), dp (data), dp.n (variance trasnformed dp), and S (covariance matrix).
 #' @export
+#'
 #' @references Jiang, Z., Sharma, A., & Johnson, F. (2020). Refining Predictor Spectral Representation Using Wavelet Theory for Improved Natural System Modeling. Water Resources Research, 56(3), e2019WR026962. doi:10.1029/2019wr026962
 #'
 #' @examples
@@ -165,8 +189,8 @@ dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
 #' data(obs.mon)
 #'
 #' ## response SPI - calibration
-#' # SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
-#' SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
+#' SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
+#' #SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
 #'
 #' ## create paired response and predictors dataset for each station
 #' data.list <- list()
@@ -182,8 +206,8 @@ dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
 #' })
 #'
 #' ## response SPI - validation
-#' # SPI.val <- SPI.calc(window(rain.mon, start=c(1979,1), end=c(2009,12)),sc=12)
-#' SPI.val <- SPEI::spi(window(rain.mon, start = c(1979, 1), end = c(2009, 12)), scale = 12)$fitted
+#' SPI.val <- SPI.calc(window(rain.mon, start=c(1979,1), end=c(2009,12)),sc=12)
+#' #SPI.val <- SPEI::spi(window(rain.mon, start = c(1979, 1), end = c(2009, 12)), scale = 12)$fitted
 #'
 #' ## create paired response and predictors dataset for each station
 #' data.list <- list()
@@ -210,7 +234,7 @@ dwt.vt <- function(data, wf, J, method, pad, boundary, cov.opt = "auto",
 #'   plot.ts(cbind(x, dp))
 #'   plot.ts(cbind(x, dp.n))
 #' }
-dwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
+dwt.vt.val <- function(data, J, dwt, detrend = FALSE, backward=FALSE, verbose=TRUE) {
 
   # initialization
   x <- data$x
@@ -221,7 +245,13 @@ dwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
   pad <- dwt$pad
   mu.dp <- apply(dp, 2, mean)
 
-  # variance transfrom
+  # reverse data
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+  }
+
+  # output
   ndim <- ncol(dp)
   n <- nrow(dp)
   dp.n <- matrix(nrow = n, ncol = ndim)
@@ -244,9 +274,10 @@ dwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
     Bn <- scale(B)
     V <- as.numeric(apply(B, 2, sd))
 
-    dif <- sum(abs(Bn %*% V - dp.c))
-    if (dif > 10^-10) print(paste0("Difference between reconstructed
-                                   and original series: ", dif))
+	if(verbose){
+		dif <- sum(abs(Bn %*% V - dp.c))
+		if (dif > 10^-10) print(paste0("Difference between reconstructed and original series: ", dif))
+	}
 
     # in case different J
     cov <- rep(0, J + 1)
@@ -271,6 +302,13 @@ dwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
     #                     and original series by percentage: ", dif.var * 100))
   }
 
+  # reverse data to normal timeline
+  if(backward) {
+    x <- rev(x)
+    dp <- apply(dp, 2, rev)
+    dp.n <- apply(dp.n, 2, rev)
+  }
+
   dwt <- list(
     wavelet = wf,
     method = method,
@@ -292,6 +330,7 @@ dwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
 #' @param pad   Method for padding, including periodic, zero and symetric padding.
 #'
 #' @return      A dyadic length (power of 2) vector or time series.
+#' @import zoo
 #' @export
 #'
 #' @examples
@@ -301,6 +340,9 @@ dwt.vt.val <- function(data, J, dwt, detrend = FALSE) {
 #' x3 <- padding(x, pad = "sym")
 #' ts.plot(cbind(x, x1, x2, x3), col = 1:4)
 padding <- function(x, pad = c("per", "zero", "sym")) {
+  x0 <- x
+  x <- as.numeric(x)
+
   n <- length(x)
   N <- 2^(ceiling(log(n, 2)))
   if (pad == "per") {
@@ -310,4 +352,9 @@ padding <- function(x, pad = c("per", "zero", "sym")) {
   } else {
     xx <- c(x, rev(x))[1:N]
   }
+
+  if(class(x0)[1] =="zoo") xx <- zoo(xx,index(x0)[1]+0:(N-1))
+  if(class(x0)[1]=="ts") xx <- ts(xx,frequency=frequency(x0), start=start(x0))
+
+  return(xx)
 }

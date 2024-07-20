@@ -13,7 +13,9 @@ dwt.vt(
   boundary,
   cov.opt = "auto",
   flag = "biased",
-  detrend = FALSE
+  detrend = FALSE,
+  backward = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -33,7 +35,11 @@ dwt.vt(
 
 \item{flag}{Biased or Unbiased variance transformation, c("biased","unbiased").}
 
-\item{detrend}{Detrend the input time series or just center, default (F)}
+\item{detrend}{Detrend the input time series or just center, default (F).}
+
+\item{backward}{Detrend the input time series or just center, default (F).}
+
+\item{verbose}{A logical indicating if some “progress report” should be given.}
 }
 \value{
 A list of 8 elements: wf, method, boundary, pad, x (data), dp (data), dp.n (variance trasnformed dp), and S (covariance matrix).
@@ -46,8 +52,8 @@ data(rain.mon)
 data(obs.mon)
 
 ## response SPI - calibration
-# SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
-SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
+SPI.cal <- SPI.calc(window(rain.mon, start=c(1949,1), end=c(1979,12)),sc=12)
+#SPI.cal <- SPEI::spi(window(rain.mon, start = c(1949, 1), end = c(1979, 12)), scale = 12)$fitted
 
 ## create paired response and predictors dataset for each station
 data.list <- list()
