@@ -1,4 +1,4 @@
-576461faaa2009b0c0226ed13ffe663f *DESCRIPTION
+11ff817dbc9fcf31d1d2dba07fd73cdf *DESCRIPTION
 b80ea89e8b822755d60a484ba68f1006 *NAMESPACE
 105644ad9772b2de9fb1ad7fb40228f1 *NEWS.md
 b5c6a35d282aa3e7f84a3d388ecb5bd1 *R/SPI_calc.R
@@ -19,7 +19,7 @@ c01e1519471832be1353f1557f101aa1 *R/scal2freq.R
 a458c998fa7bf622ea85ba7b630ea00b *R/stepwise_VT.R
 0a6891640c53f96accba4c4a41037997 *R/wavelet_variance.R
 2d307c6ab803d9c1a3900360bb0d5055 *README.md
-bfdd85ec8a7fc73c8faa908eae4cbce2 *build/vignette.rds
+c2155887befe3c52e2b8798aaea07cbb *build/vignette.rds
 43594d260e1e9e26082efe851e9ae8bc *data/Ind_AWAP.2.5.rda
 14077089e4cc3a8fc2c52ee64c770650 *data/SPI.12.rda
 3314a4fea6bc2627afe43f955b4c769c *data/aus.coast.rda
@@ -28,16 +28,16 @@ d8c55817683301594bcb1bee1736cd10 *data/data.AWAP.2.5.rda
 a5a9c2bce1005e11c25f4e8e61e8a45d *data/data.HL.rda
 87465c35f21020a1f41162c2d127a057 *data/data.SW1.rda
 6f370899b7d12f24fe67aebc7edbd1af *data/data.SW3.rda
-57143bcaf4f96d11a29e4eb386ea0697 *data/datalist
+2fd4a9172d936f035b8b94e8da99751d *data/datalist
 e36ed7990a6ed33e35f7a274d7493930 *data/lat_lon.2.5.rda
 63a0f0a2d2e11963f5bb530f225b655a *data/obs.mon.rda
 d296f040167eeefc13005bfc5337018b *data/rain.mon.rda
 2abbf429def104ee9d2bc9e03ba50763 *demo/00Index
 5d4db2f67b87f315c03a4f300c2a0200 *demo/demo-vt.R
 9301b2e8b0acc36f989079888d8fa3d5 *inst/CITATION
-046856112f9a75226d68b4231441db01 *inst/doc/WASP.R
-359acf902539e722fd0c65d3e4e70133 *inst/doc/WASP.Rmd
-4341f7f6e374dccae5a716cac976b264 *inst/doc/WASP.html
+06b800d9773244184a2a757c6142de90 *inst/doc/WASP.R
+a0c7c103ce061769b712a2f446e45edf *inst/doc/WASP.Rmd
+78e3f0a5564dd19746a700510adbe166 *inst/doc/WASP.html
 2eca4a86a8b6e3101d0f43f1bf50c8ef *inst/fig/Figure1.jpg
 f204eb32d107998e56ffb6edff02b135 *inst/r/radar_chart.R
 5e11a36bbd9f0ca1d236b8871d85cdee *inst/r/taylor_diag.R
@@ -82,4 +82,4 @@ dd97dfdef43f52bb8bbbd7aa39ed34e2 *man/scal2freqR.Rd
 7717a92839b4cd66a7c3ef727f32cf5d *man/stepwise.VT.Rd
 3c2d6077073a5de727a9bf2e82a74bd4 *man/stepwise.VT.val.Rd
 7b284658abec63d671312907ba444087 *man/wave.var.Rd
-359acf902539e722fd0c65d3e4e70133 *vignettes/WASP.Rmd
+a0c7c103ce061769b712a2f446e45edf *vignettes/WASP.Rmd

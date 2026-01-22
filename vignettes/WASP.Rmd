@@ -34,8 +34,8 @@ library(kableExtra)
 library(WASP)
 library(ggplot2)
 
-if(!require(SPEI)) devtools::install_github('sbegueria/SPEI@v1.7.1') # use 1.7.1
-require(SPEI)
+#if(!require(SPEI)) devtools::install_github('sbegueria/SPEI@v1.7.1') # use 1.7.1
+#require(SPEI)
 library(readr)
 library(dplyr)
 library(FNN)
@@ -582,9 +582,10 @@ cowplot::plot_grid(plotlist = p.list, nrow = 1, labels = c("(a)", "(b)", "(c)"))
 #   kable_styling(latex_options = c("HOLD_position"), position = "center", full_width = FALSE)  %>%
 #   #  add_header_above(c(" " = 1, "DWT-MRA" = 2, "MODWT" = 2, "AT" = 2))
 #   add_header_above(c(" " = 1, "DWT-MRA" = 2, "MODWT/AT" = 2))
-tab1 <- RMSE %>% group_by(mode) %>% mutate(id = row_number())
+tab <- RMSE %>% group_by(mode) %>% mutate(id = row_number())
+tab1 <- tab[,c(1,4,2,3)]
 colnames(tab1) <- c("Method","No. of Predictors","Original","Transformed")
-kable(tab1[,c(1,4,2,3)], caption = "Comparison of prediction accuracy using Std and SVT", booktabs = T, 
+kable(tab1, caption = "Comparison of prediction accuracy using Std and SVT", booktabs = T, 
       digits = 3) %>%
   kable_styling(latex_options = c("HOLD_position"), position = "center", full_width = FALSE)  %>%
   collapse_rows(columns = 1)
